@@ -14,6 +14,7 @@ class Bot:
         self.high = 0
         self.last = 0
         self.vals = []
+        self.tendency = "none"
 
     def run(self):
         while True:
@@ -35,25 +36,38 @@ class Bot:
             bitcoin = self.botState.stacks["BTC"]
             current_closing_price = self.botState.charts["USDT_BTC"].closes[-1]
             affordable = dollars / current_closing_price
-            sellable = bitcoin / current_closing_price
+            # sellable = bitcoin / current_closing_price
             print(f'My stacks are {dollars}. The current closing price is {current_closing_price}. So I can afford {affordable}', file=sys.stderr)
+            if self.tendency == "":
+                print("no_moves", flush=True)
+            elif self.tendency == "up" and current_closing_price < self.last and {0.5 * bitcoin} > 0.01:
+                print(f'sell USDT_BTC {0.5 * bitcoin}', flush=True)
+            elif self.tendency == "down" and current_closing_price > self.last and {0.5 * affordable} > 0.01:
+                print(f'buy USDT_BTC {0.5 * affordable}', flush=True)
+            else:
+                print("no_moves", flush=True)
+            if self.last > current_closing_price:
+                self.tendency = "down"
+            else:
+                self.tendency = "up"
+            self.last = current_closing_price
             # if dollars < 100:
             #     print("no_moves", flush=True)
             # if (self.high > current_closing_price + self.last) and 0.5 * affordable > 0.01:
             #     print(f'buy USDT_BTC {0.5 * affordable}', flush=True)
             # elif (self.low < current_closing_price - self.last) and 0.5 * sellable> 0.01:
-             #    print(f'sell USDT_BTC {0.5 * sellable}', flush=True)
+            #    print(f'sell USDT_BTC {0.5 * sellable}', flush=True)
             # else:
             #     print("no_moves", flush=True)
-            if np.mean(self.vals) > current_closing_price and (0.5 * sellable) > 0.01:
-                print(f'sell USDT_BTC {0.5 * sellable}', flush=True)
-            elif np.mean(self.vals) < current_closing_price and (0.5 * affordable) > 0.01:
-                print(f'buy USDT_BTC {0.5 * affordable}', flush=True)
-            else:
-                print("no_moves", flush=True)
-            self.vals.append(current_closing_price)
-            if len(self.vals) > 7:
-               self.vals.remove(self.vals[0])
+            # if np.mean(self.vals) > current_closing_price and (0.5 * sellable) > 0.01:
+            #     print(f'sell USDT_BTC {0.5 * sellable}', flush=True)
+            # elif np.mean(self.vals) < current_closing_price and (0.5 * affordable) > 0.01:
+            #     print(f'buy USDT_BTC {0.5 * affordable}', flush=True)
+            # else:
+            #     print("no_moves", flush=True)
+            # self.vals.append(current_closing_price)
+            # if len(self.vals) > 7:
+            #    self.vals.remove(self.vals[0])
             # self.last = current_closing_price
             # self.low = current_closing_price - self.last
             # self.high = current_closing_price + self.last
