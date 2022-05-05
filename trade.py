@@ -13,6 +13,8 @@ class Bot:
         self.low = 0
         self.high = 0
         self.last = 0
+        self.tendency = 0
+        self.transaction = 0
         self.vals = []
 
     def run(self):
@@ -35,28 +37,48 @@ class Bot:
             bitcoin = self.botState.stacks["BTC"]
             current_closing_price = self.botState.charts["USDT_BTC"].closes[-1]
             affordable = dollars / current_closing_price
-            sellable = bitcoin / current_closing_price
+            # sellable = bitcoin / current_closing_price
             print(f'My stacks are {dollars}. The current closing price is {current_closing_price}. So I can afford {affordable}', file=sys.stderr)
+            print(f'My stacks are {bitcoin}. The current closing price is {current_closing_price}. So I can sell {bitcoin}', file=sys.stderr)
             # if dollars < 100:
             #     print("no_moves", flush=True)
-            # if (self.high > current_closing_price + self.last) and 0.5 * affordable > 0.01:
-            #     print(f'buy USDT_BTC {0.5 * affordable}', flush=True)
-            # elif (self.low < current_closing_price - self.last) and 0.5 * sellable> 0.01:
-             #    print(f'sell USDT_BTC {0.5 * sellable}', flush=True)
+            # if (self.high > current_closing_price + self.last) and affordable > 0.01:
+            #     print(f'buy USDT_BTC {affordable}', flush=True)
+            # elif (self.low < current_closing_price - self.last) and bitcoin > 0.01:
+            #     print(f'sell USDT_BTC {sellable}', flush=True)
             # else:
             #     print("no_moves", flush=True)
-            if np.mean(self.vals) > current_closing_price and (0.5 * sellable) > 0.01:
-                print(f'sell USDT_BTC {0.5 * sellable}', flush=True)
-            elif np.mean(self.vals) < current_closing_price and (0.5 * affordable) > 0.01:
-                print(f'buy USDT_BTC {0.5 * affordable}', flush=True)
+            # # if np.mean(self.vals) > current_closing_price and (0.5 * sellable) > 0.01:
+            #     print(f'sell USDT_BTC {0.5 * sellable}', flush=True)
+            # elif np.mean(self.vals) < current_closing_price and (0.5 * affordable) > 0.01:
+            #     print(f'buy USDT_BTC {0.5 * affordable}', flush=True)
+            # else:
+            #     print("no_moves", flush=True)
+            # self.vals.append(current_closing_price)
+            # if len(self.vals) > 7:
+            #    self.vals.remove(self.vals[0])
+            if (self.last > current_closing_price):
+                # print(f'sell USDT_BTC {bitcoin * 0.9}', flush=True, file=sys.stderr)
+                if (self.tendency == 2 and bitcoin > 0.001 and current_closing_price > self.transaction):
+                # if (bitcoin > 0.001 and current_closing_price > self.transaction):
+                    print(f'sell USDT_BTC {bitcoin}', flush=True)
+                else:
+                    print("no_moves", flush=True)
+                self.tendency = 1
+            elif (self.last < current_closing_price):
+                # print(f'buy USDT_BTC {affordable * 0.9}', flush=True, file=sys.stderr)
+                if (self.tendency == 1 and affordable > 0.001):
+                # if (affordable * 0.2 > 0.001):
+                    print(f'buy USDT_BTC {affordable}', flush=True)
+                    self.transaction = current_closing_price
+                else:
+                    print("no_moves", flush=True)
+                self.tendency = 2
             else:
                 print("no_moves", flush=True)
-            self.vals.append(current_closing_price)
-            if len(self.vals) > 7:
-               self.vals.remove(self.vals[0])
-            # self.last = current_closing_price
-            # self.low = current_closing_price - self.last
-            # self.high = current_closing_price + self.last
+            self.last = current_closing_price
+            self.low = current_closing_price - self.last
+            self.high = current_closing_price + self.last
             # elif dollars % 2 == 0 and 0.5 * sellable > 0.01:
 
 
