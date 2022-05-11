@@ -57,15 +57,15 @@ class Bot:
             # self.vals.append(current_closing_price)
             # if len(self.vals) > 7:
             #    self.vals.remove(self.vals[0])
-            if (self.last > current_closing_price):
+            if (self.last < current_closing_price):
                 # print(f'sell USDT_BTC {bitcoin * 0.9}', flush=True, file=sys.stderr)
-                if (self.tendency == 2 and bitcoin > 0.001 and current_closing_price > self.transaction):
+                if (self.tendency == 2 and bitcoin > 0.001):
                 # if (bitcoin > 0.001 and current_closing_price > self.transaction):
                     print(f'sell USDT_BTC {bitcoin}', flush=True)
                 else:
                     print("no_moves", flush=True)
                 self.tendency = 1
-            elif (self.last < current_closing_price):
+            elif (self.last > current_closing_price):
                 # print(f'buy USDT_BTC {affordable * 0.9}', flush=True, file=sys.stderr)
                 if (self.tendency == 1 and affordable > 0.001):
                 # if (affordable * 0.2 > 0.001):
